@@ -1,102 +1,130 @@
-@login_required
-def dashboard(request):
-    user = request.user
-    
-    # Handle different form submissions
+from __future__ import annotations
+
+from django.contrib import messages
+from django.contrib.auth import logout
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
+from .services import (
+    ForLearning as learning_service,
+    budget as budget_service,
+    dashboard as dashboard_service,
+    donate as donate_service,
+    login as login_service,
+    profile as profile_service,
+    promotions as promotions_service,
+    users as users_service,
+)
+
+
+NAVIGATION_PAGES = {
+    "dashboard": "dashboard.html",
+    "login": "login.html",
+    "logout": "logout.html",
+    "promotions": "promotions.html",
+    "budget": "budget.html",
+    "donate": "donate.html",
+    "profile": "profile.html",
+    "learning": "ForLearning.html",
+    "users": "users.html",
+}
+
+
+def render_page(request: HttpRequest, template_name: str, active_page: str, context: dict | None = None) -> HttpResponse:
+    context = context or {}
+    context.setdefault("active_page", active_page)
+    return render(request, template_name, context)
+
+
+def dashboard_view(request: HttpRequest) -> HttpResponse:
+    success, extras = dashboard_service.handle_post(request, request.user)
+    if success:
+        messages.success(request, "Dashboard updated successfully.")
+        return redirect("dashboard")
+    context = dashboard_service.build_context(request.user, overrides=extras)
+    return render_page(request, NAVIGATION_PAGES["dashboard"], "dashboard", context)
+
+
+def login_view(request: HttpRequest) -> HttpResponse:
+    success, form = login_service.handle_request(request)
+    if success:
+        messages.success(request, "Welcome back!")
+        next_url = request.GET.get("next") or reverse("dashboard")
+        return redirect(next_url)
+    context = login_service.build_context(form)
+    return render_page(request, NAVIGATION_PAGES["login"], "login", context)
+
+
+def logout_view(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
-        form_type = request.POST.get("form_type")
-        
-        if form_type == "send_money":
-            return handle_money_transfer(request)
-        elif form_type == "transaction":
-            return handle_transaction_form(request)
-        elif form_type == "goal":
-            return handle_goal_form(request)
-    
-    try:
-        # Get user's transactions and goals
-        transactions = Transaction.objects.filter(user=user).order_by("-occurred_at")[:10]
-        goals = SavingGoal.objects.filter(user=user)
-        
-        # Calculate metrics - handle case where constants don't exist yet
-        try:
-            incoming_kinds = [Transaction.INCOMING, Transaction.TRANSFER_IN]
-            outgoing_kinds = [Transaction.OUTGOING, Transaction.TRANSFER_OUT]
-        except AttributeError:
-            # Fallback for older Transaction model without transfer constants
-            incoming_kinds = ['incoming']
-            outgoing_kinds = ['outgoing']
-        
-              # ✅ Simplified and database-aggregated calculations
-        incoming_total = (
-            Transaction.objects.filter(user=user, kind__in=incoming_kinds)
-            .aggregate(total=Sum("amount"))["total"]
-            or Decimal("0.00")
-        )
+        logout(request)
+        messages.info(request, "You have been signed out.")
+        return redirect("login")
+    return render_page(request, NAVIGATION_PAGES["logout"], "logout")
 
-        outgoing_total = (
-            Transaction.objects.filter(user=user, kind__in=outgoing_kinds)
-            .aggregate(total=Sum("amount"))["total"]
-            or Decimal("0.00")
-        )
 
-        # Ensure both totals are positive for display
-        incoming_total = abs(incoming_total)
-        outgoing_total = abs(outgoing_total)
+def promotions_view(request: HttpRequest) -> HttpResponse:
+    promotions = promotions_service.list_promotions()
+    context = {"promotions": promotions}
+    return render_page(request, NAVIGATION_PAGES["promotions"], "promotions", context)
 
-        # Net flow: total income minus total expenses
-        net_flow = incoming_total - outgoing_total
 
-        
-        # Get donation total
-        donation_total_packs = Donation.objects.filter(donor=user).aggregate(
-            total=Sum("quantity")
-        )["total"] or 0
-        
-        # Get available recipients (users with phone numbers, excluding current user)
-        available_recipients = UserProfile.objects.filter(
-            phone_number__isnull=False,
-            is_active=True
-        ).exclude(user=user).select_related('user')
-        
-        context = {
-            "recent_transactions": transactions,
-            "goals": goals,
-            "incoming_total": incoming_total,
-            "outgoing_total": outgoing_total,
-            "net_flow": net_flow,
-            "donation_total_packs": donation_total_packs,
-            "available_recipients": available_recipients,
-            "transaction_form": TransactionForm(),
-            "goal_form": SavingGoalForm(),
-            "transfer_form": MoneyTransferForm(request=request),
-            "currency_choices": CURRENCY_CHOICES,
-            "now": timezone.now(),
-        }
-        
-        return render(request, "dashboard.html", context)
-        
-    except Exception as e:
-        print(f"ERROR in dashboard: {e}")
-        messages.error(request, f"Error loading dashboard: {str(e)}")
-        
-        # Return safe context with sample data
-        context = {
-            "recent_transactions": [],
-            "goals": [],
-            "incoming_total": Decimal('1250.00'),  # More realistic sample data
-            "outgoing_total": Decimal('850.00'),
-            "net_flow": Decimal('400.00'),
-            "donation_total_packs": 3,
-            "available_recipients": UserProfile.objects.filter(
-                phone_number__isnull=False,
-                is_active=True
-            ).exclude(user=user).select_related('user'),
-            "transaction_form": TransactionForm(),
-            "goal_form": SavingGoalForm(),
-            "transfer_form": MoneyTransferForm(request=request),
-            "currency_choices": CURRENCY_CHOICES,
-            "now": timezone.now(),
-        }
-        
-        return render(request, "dashboard.html", context)
+def budget_view(request: HttpRequest) -> HttpResponse:
+    success, extras = budget_service.handle_post(request, request.user)
+    if success:
+        messages.success(request, "Budget entry saved.")
+        return redirect("budget")
+    context = budget_service.build_context(
+        request.user,
+        month=request.GET.get("month"),
+    )
+    context.update(extras)
+    return render_page(request, NAVIGATION_PAGES["budget"], "budget", context)
+
+
+def donate_view(request: HttpRequest) -> HttpResponse:
+    success, extras = donate_service.handle_post(request, request.user)
+    if success:
+        messages.success(request, "Thank you for your donation!")
+        return redirect("donate")
+    context = donate_service.build_context(request.user)
+    context.update(extras)
+    return render_page(request, NAVIGATION_PAGES["donate"], "donate", context)
+
+
+def profile_view(request: HttpRequest) -> HttpResponse:
+    if not request.user.is_authenticated:
+        messages.info(request, "Please sign in to manage your profile.")
+        return redirect("login")
+
+    context = profile_service.build_context(request.user)
+
+    if request.method == "POST":
+        success, form = profile_service.handle_post(request, request.user)
+        if success:
+            messages.success(request, "Profile updated.")
+            return redirect("profile")
+        context["form"] = form
+
+    return render_page(request, NAVIGATION_PAGES["profile"], "profile", context)
+
+
+def learning_view(request: HttpRequest) -> HttpResponse:
+    category = request.GET.get("category")
+    resources = learning_service.list_resources(category)
+    counts = learning_service.category_counts()
+    context = {
+        "resources": resources,
+        "category_counts": counts,
+        "selected_category": category or "all",
+    }
+    return render_page(request, NAVIGATION_PAGES["learning"], "learning", context)
+
+
+def users_view(request: HttpRequest) -> HttpResponse:
+    context = {
+        "total_users": users_service.total_users(),
+        "membership_breakdown": users_service.category_breakdown(),
+    }
+    return render_page(request, NAVIGATION_PAGES["users"], "users", context)

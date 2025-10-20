@@ -70,13 +70,20 @@ class SavingGoalForm(forms.ModelForm):
 
 
 class TransactionForm(forms.ModelForm):
+    # ADD CURRENCY AS CHOICE FIELD
+    currency = forms.ChoiceField(
+        choices=CURRENCY_CHOICES,
+        initial='USD',
+        widget=forms.Select(attrs={'class': 'field'})
+    )
+    
     class Meta:
         model = Transaction
         fields = ["description", "amount", "currency", "kind", "category", "occurred_at"]
         widgets = {
             "description": forms.TextInput(attrs={"class": "field"}),
             "amount": forms.NumberInput(attrs={"class": "field", "step": "0.01"}),
-            "currency": forms.Select(attrs={"class": "field"}),  # CHANGED: TextInput to Select
+            # REMOVED currency from widgets since we defined it above as ChoiceField
             "kind": forms.Select(attrs={"class": "field"}),
             "category": forms.TextInput(attrs={"class": "field"}),
             "occurred_at": StyledDateTimeInput(attrs={"class": "field"}),
@@ -85,11 +92,16 @@ class TransactionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["occurred_at"].input_formats = ["%Y-%m-%dT%H:%M"]
-        # Set currency choices from the model
-        self.fields['currency'].choices = CURRENCY_CHOICES
 
 
 class ProfileForm(forms.ModelForm):
+    # ADD PREFERRED CURRENCY AS CHOICE FIELD
+    preferred_currency = forms.ChoiceField(
+        choices=CURRENCY_CHOICES,
+        initial='USD',
+        widget=forms.Select(attrs={'class': 'field'})
+    )
+    
     class Meta:
         model = UserProfile
         fields = [
@@ -106,7 +118,7 @@ class ProfileForm(forms.ModelForm):
         widgets = {
             "display_name": forms.TextInput(attrs={"class": "field"}),
             "membership_level": forms.TextInput(attrs={"class": "field"}),
-            "preferred_currency": forms.Select(attrs={"class": "field"}),  # CHANGED: TextInput to Select
+            # REMOVED preferred_currency from widgets since we defined it above as ChoiceField
             "country": forms.TextInput(attrs={"class": "field"}),
             "city": forms.TextInput(attrs={"class": "field"}),
             "address": forms.TextInput(attrs={"class": "field"}),
@@ -115,12 +127,8 @@ class ProfileForm(forms.ModelForm):
             "language": forms.TextInput(attrs={"class": "field"}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Set currency choices from the model
-        self.fields['preferred_currency'].choices = CURRENCY_CHOICES
 
-
+# ADD MONEY TRANSFER FORM
 class MoneyTransferForm(forms.Form):
     recipient_phone = forms.CharField(
         max_length=32,
