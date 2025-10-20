@@ -1,0 +1,1068 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>Remittence Dashboard</title>
+
+ 
+
+  <!-- Inter font for a polished banking look -->
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+ 
+
+<style>
+
+  /* Base */
+
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  body{
+
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+
+    background: #F0F4F7;
+
+    min-height:100vh;
+
+    color:#24303b;
+
+  }
+
+  .container{display:flex;min-height:100vh}
+
+ 
+
+  /* Sidebar */
+
+  .sidebar{
+
+    width:260px;
+
+    background:#2B1D4C; /* dark indigo/purple */
+
+    box-shadow:4px 0 30px rgba(11,7,22,.25);
+
+    padding:30px 20px;
+
+    position:fixed;
+
+    height:100vh;
+
+    overflow-y:auto;
+
+  }
+
+  .logo{text-align:center;margin-bottom:40px}
+
+  .logo h1{
+
+    color:#E53935; /* vibrant red */
+
+    font-size:26px;font-weight:800;letter-spacing:0.2px;
+
+  }
+
+  .logo p{color:#DCE2E7;font-size:12px;margin-top:6px}
+
+ 
+
+  .nav-item{
+
+    padding:15px 20px;margin:10px 0;border-radius:15px;cursor:pointer;
+
+    transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+
+    color:#DCE2E7;font-weight:600;display:flex;align-items:center;gap:12px;font-size:14px;
+
+  }
+
+  .nav-item:hover{
+
+    background:linear-gradient(90deg, rgba(229,57,53,.95), rgba(198,40,40,.95));
+
+    color:#fff;transform:translateX(6px);
+
+    box-shadow:0 8px 30px rgba(229,57,53,.12);
+
+  }
+
+  .nav-item.active{
+
+    background:linear-gradient(90deg,#E53935,#C62828);
+
+    color:#fff;box-shadow:0 8px 30px rgba(198,40,40,.12);
+
+  }
+
+ 
+
+  /* Main */
+
+  .main-content{margin-left:260px;flex:1;padding:40px;background:transparent}
+
+  .header{
+
+    background:#fff;padding:24px 32px;border-radius:20px;
+
+    box-shadow:0 8px 40px rgba(198,40,40,.05);margin-bottom:28px;
+
+    display:flex;justify-content:space-between;align-items:center;gap:24px;
+
+  }
+
+  .header-info h2{color:#2B1D4C;font-size:26px;font-weight:700;margin-bottom:6px}
+
+  .header-info p{color:#6b7280;font-size:14px}
+
+ 
+
+  /* Send Money Button */
+
+  .send-money-btn{
+
+    background:linear-gradient(135deg,#4CAF50 0%,#43A047 100%);
+
+    color:#fff;border:none;padding:12px 22px;border-radius:25px;
+
+    cursor:pointer;font-weight:700;font-size:14px;box-shadow:0 8px 30px rgba(76,175,80,.12);transition:.2s;
+
+  }
+
+  .send-money-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(76,175,80,.16)}
+
+ 
+
+  /* Modal */
+
+  .modal-overlay{
+
+    position:fixed;top:0;left:0;width:100%;height:100%;
+
+    background:rgba(6,5,8,.45);display:none;justify-content:center;align-items:center;z-index:1000;
+
+  }
+
+  .modal{
+
+    background:#fff;border-radius:18px;padding:28px;max-width:520px;width:94%;
+
+    box-shadow:0 18px 60px rgba(11,7,22,.28);position:relative;animation:modalSlideIn .26s ease-out;
+
+  }
+
+  @keyframes modalSlideIn{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #E6EBF0}
+
+  .modal-header h3{color:#E53935;font-size:20px;font-weight:700}
+
+  .close-btn{background:none;border:none;font-size:22px;color:#6b7280;cursor:pointer;padding:0;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.15s}
+
+  .close-btn:hover{background:#F3F6F9;color:#E53935}
+
+ 
+
+  .modal-body{margin-bottom:18px}
+
+  .form-group{margin-bottom:14px}
+
+  .form-group label{display:block;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:700}
+
+  .form-group select,.form-group input{
+
+    width:100%;border:2px solid #E6EBF0;border-radius:12px;padding:12px 14px;font-size:14px;background:#fff;transition:.18s;
+
+  }
+
+  .form-group select:focus,.form-group input:focus{outline:none;border-color:#E53935;box-shadow:0 0 0 6px rgba(229,57,53,.06)}
+
+ 
+
+  .fee-info{background:#fff;border:1px solid #e9eef2;border-radius:12px;padding:12px;margin:14px 0;font-size:13px;color:#606b76}
+
+  .fee-amount{color:#E53935;font-weight:700}
+
+  .modal-footer{display:flex;gap:12px;justify-content:flex-end}
+
+  .btn-secondary{background:#6c757d;color:#fff;border:none;padding:10px 20px;border-radius:25px;cursor:pointer;font-weight:700;font-size:14px}
+
+  .btn-secondary:hover{background:#5a6268}
+
+ 
+
+  /* Metrics */
+
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-bottom:6px}
+
+  .metric-card{
+
+    background:linear-gradient(180deg,#ffffff,#fffafa);
+
+    padding:20px;border-radius:18px;box-shadow:0 10px 30px rgba(229,57,53,.06);
+
+    border:1px solid rgba(230,235,240,.7);
+
+  }
+
+  .metric-card h3{font-size:13px;color:#6b7280;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em}
+
+  .metric-card strong{font-size:24px;color:#E53935}
+
+  .metric-card span{display:block;font-size:12px;color:#8b93a0;margin-top:6px}
+
+ 
+
+  /* Content grid */
+
+  .content-grid{display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-top:18px}
+
+  @media(max-width:1100px){.content-grid{grid-template-columns:1fr}}
+
+ 
+
+  .card{
+
+    background:#fff;padding:22px;border-radius:16px;box-shadow:0 12px 40px rgba(11,7,22,.04);
+
+    border:1px solid rgba(230,235,240,.8);margin-bottom:18px;
+
+  }
+
+  .card h3{color:#E53935;margin-bottom:14px;font-size:18px}
+
+ 
+
+  table{width:100%;border-collapse:collapse}
+
+  th,td{text-align:left;padding:12px 10px;font-size:13px}
+
+  th{
+
+    background:#E6EBF0;color:#2B1D4C;text-transform:uppercase;font-size:12px;letter-spacing:.05em;border-bottom:1px solid rgba(11,7,22,.04)
+
+  }
+
+  tr:nth-child(even){background:#F7F9FB}
+
+  .status{font-weight:700;font-size:12px;border-radius:999px;padding:6px 10px;display:inline-block}
+
+  .status.on-track{background:#e8fff1;color:#2e7d32}
+
+  .status.behind{background:#fff2f2;color:#c0392b}
+
+  .status.ahead{background:#ecf5ff;color:#1565c0}
+
+ 
+
+  .pill{display:inline-block;background:#E6EBF0;color:#2B1D4C;padding:8px 12px;border-radius:999px;font-size:12px;margin:4px 6px 0 0}
+
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+
+  label{font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:block}
+
+  .field{width:100%;border:2px solid #E6EBF0;border-radius:12px;padding:10px 12px;font-size:14px;background:#fff}
+
+  .btn-primary{
+
+    background:linear-gradient(135deg,#E53935 0%,#C62828 100%);
+
+    color:#fff;border:none;padding:12px 22px;border-radius:25px;cursor:pointer;font-weight:800;font-size:14px;
+
+    box-shadow:0 10px 30px rgba(198,40,40,.12);transition:.18s;margin-top:10px
+
+  }
+
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 18px 50px rgba(198,40,40,.16)}
+
+ 
+
+  .errorlist{list-style:none;color:#c0392b;font-size:12px;margin-top:-4px;margin-bottom:8px}
+
+  .flash{background:#fff3f3;border:1px solid rgba(229,57,53,.12);color:#7a2a2a;padding:10px 12px;border-radius:12px;margin-bottom:16px;font-size:13px}
+
+  .message{background:#fff3f3;border:1px solid rgba(229,57,53,.12);color:#7a2a2a;padding:10px 12px;border-radius:12px;margin-bottom:16px;font-size:13px}
+
+ 
+
+  /* small screens tweak */
+
+  @media(max-width:600px){
+
+    .header{padding:18px}
+
+    .main-content{padding:20px}
+
+    .sidebar{width:220px}
+
+    .logo h1{font-size:20px}
+
+  }
+
+</style>
+
+</head>
+
+<body>
+
+  <div class="container">
+
+    <aside class="sidebar">
+
+      <div class="logo"><h1>UniPay</h1><p>Empowering Global Money Transfers.</p></div>
+
+      <nav>
+
+        <div class="nav-item active" onclick="goTo('dashboard')"><span>📊</span><span>Dashboard</span></div>
+
+        <div class="nav-item" onclick="goTo('admin_dashboard')"><span>🔧</span><span>Admin Panel</span></div>
+
+        <div class="nav-item" onclick="goTo('profile')"><span>👤</span><span>Profile</span></div>
+
+        <div class="nav-item" onclick="goTo('learning')"><span>📚</span><span>Financial Education</span></div>
+
+        <div class="nav-item" onclick="goTo('promotions')"><span>🎁</span><span>Promotions</span></div>
+
+        <div class="nav-item" onclick="goTo('donate')"><span>💝</span><span>Donations</span></div>
+
+        <div class="nav-item" onclick="goTo('budget')"><span>💰</span><span>Budget</span></div>
+
+        {% if user.profile.is_admin %}
+
+          <div class="nav-item" onclick="goTo('admin_dashboard')"><span>🔧</span><span>Admin Panel</span></div>
+
+        {% endif %}
+
+        <div class="nav-item" onclick="goTo('logout')"><span>🚪</span><span>Logout</span></div>
+
+      </nav>
+
+    </aside>
+
+ 
+
+    <main class="main-content">
+
+      {% if messages %}
+
+        {% for message in messages %}<div class="flash">{{ message }}</div>{% endfor %}
+
+      {% endif %}
+
+ 
+
+      <section class="header">
+
+        <div class="header-info">
+
+          <h2>Welcome back{% if request.user.is_authenticated %} {{ request.user.first_name|default:request.user.username }}{% endif %}</h2>
+
+          <p>Track transfers, pad donations, and learning milestones in one place.</p>
+
+        </div>
+
+        <div>
+
+          <button class="send-money-btn" onclick="openSendMoneyModal()">💸 Send Money</button>
+
+          <span class="pill">Updated {{ now|date:"M d, Y" }}</span>
+
+        </div>
+
+      </section>
+
+ 
+
+      <!-- Send Money Modal -->
+
+      <div id="sendMoneyModal" class="modal-overlay" aria-hidden="true">
+
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sendMoneyTitle">
+
+          <div class="modal-header">
+
+            <h3 id="sendMoneyTitle">Send Money</h3>
+
+            <button class="close-btn" onclick="closeSendMoneyModal()" aria-label="Close">&times;</button>
+
+          </div>
+
+          <div class="modal-body">
+
+            <form id="sendMoneyForm" method="post">
+
+              {% csrf_token %}
+
+              <input type="hidden" name="form_type" value="send_money"/>
+
+ 
+
+              <div class="form-group">
+
+                <label for="recipient">Send to (Phone Number)</label>
+
+                <select id="recipient" name="recipient_phone" required>
+
+                  <option value="">Select recipient...</option>
+
+                  {% for user_profile in available_recipients %}
+
+                    <option value="{{ user_profile.phone_number }}">
+
+                      {{ user_profile.phone_number }} - {{ user_profile.display_name|default:user_profile.user.username }} ({{ user_profile.country|default:"Unknown" }})
+
+                    </option>
+
+                  {% empty %}
+
+                    <option disabled>No recipients available</option>
+
+                  {% endfor %}
+
+                </select>
+
+ 
+
+                <small style="color:#6b7280;font-size:11px;margin-top:6px;display:block;">
+
+                  {% if available_recipients %}
+
+                    {{ available_recipients|length }} recipient(s) available
+
+                  {% else %}
+
+                    No recipients found. Make sure users have phone numbers.
+
+                  {% endif %}
+
+                </small>
+
+              </div>
+
+ 
+
+              <div class="form-group">
+
+                <label for="amount">Amount</label>
+
+                <input type="number" id="amount" name="amount" step="0.01" min="0.01" placeholder="0.00" required oninput="calculateFee()"/>
+
+              </div>
+
+ 
+
+              <div class="form-group">
+
+                <label for="currency">Currency</label>
+
+                <select id="currency" name="currency" required>
+
+                  <option value="USD">USD - US Dollar</option>
+
+                  <option value="EUR">EUR - Euro</option>
+
+                  <option value="GBP">GBP - British Pound</option>
+
+                  <option value="KES">KES - Kenyan Shilling</option>
+
+                  <option value="GHS">GHS - Ghanaian Cedi</option>
+
+                  <option value="NGN">NGN - Nigerian Naira</option>
+
+                  <option value="ZAR">ZAR - South African Rand</option>
+
+                </select>
+
+              </div>
+
+ 
+
+              <div class="form-group">
+
+                <label for="description">Description (Optional)</label>
+
+                <input type="text" id="description" name="description" placeholder="What's this for?" maxlength="255"/>
+
+              </div>
+
+ 
+
+              <div class="fee-info">
+
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+
+                  <span>Transfer Amount:</span>
+
+                  <span id="transferAmount">R0.00</span>
+
+                </div>
+
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+
+                  <span>Service Fee (2%):</span>
+
+                  <span id="serviceFee" class="fee-amount">R0.00</span>
+
+                </div>
+
+                <div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid #eef2f6;padding-top:8px;">
+
+                  <span>Total Deduction:</span>
+
+                  <span id="totalAmount">R0.00</span>
+
+                </div>
+
+              </div>
+
+            </form>
+
+          </div>
+
+ 
+
+          <div class="modal-footer">
+
+            <button type="button" class="btn-secondary" onclick="closeSendMoneyModal()">Cancel</button>
+
+            <button type="submit" form="sendMoneyForm" class="btn-primary">Send Money</button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+ 
+
+      <!-- Metrics -->
+<section class="metrics">
+  <div class="metric-card">
+    <h3>Total Incoming</h3>
+    <strong style="color:#2e7d32;">+{{ incoming_total|floatformat:2 }}</strong>
+    <span>Across all transfers</span>
+  </div>
+
+  <div class="metric-card">
+    <h3>Total Outgoing</h3>
+    <strong style="color:#c0392b;">-{{ outgoing_total|floatformat:2 }}</strong>
+    <span>Funds sent home</span>
+  </div>
+
+  <div class="metric-card">
+    <h3>Net Flow</h3>
+    <strong{% if net_flow < 0 %} style="color:#c0392b"{% else %} style="color:#2e7d32"{% endif %}>
+      {{ net_flow|floatformat:2 }}
+    </strong>
+    <span>Income minus transfers</span>
+  </div>
+
+  <div class="metric-card">
+    <h3>Packs Donated</h3>
+    <strong>{{ donation_total_packs }}</strong>
+    <span>Community impact</span>
+  </div>
+</section>
+
+
+ 
+
+      <!-- Content Grid: Recent Transactions & Goals -->
+
+      <section class="content-grid">
+
+        <div>
+
+          <div class="card">
+
+            <h3>Recent Transactions</h3>
+
+            {% if recent_transactions %}
+
+              <table>
+
+                <thead>
+
+                  <tr><th>Description</th><th>Amount</th><th>When</th></tr>
+
+                </thead>
+
+                <tbody>
+
+                  {% for tx in recent_transactions %}
+
+                    <tr>
+
+                      <td>{{ tx.description }}</td>
+
+                      <td>
+
+                        {% if tx.kind == tx.OUTGOING or tx.kind == tx.TRANSFER_OUT %}-{% else %}+{% endif %}
+
+                        {{ tx.amount|floatformat:2 }} {{ tx.currency }}
+
+                      </td>
+
+                      <td>{{ tx.occurred_at|date:"M d, H:i" }}</td>
+
+                    </tr>
+
+                  {% endfor %}
+
+                </tbody>
+
+              </table>
+
+            {% else %}
+
+              <p style="color:#6b7280;font-size:14px;">No transactions recorded yet. Use the quick form to add one.</p>
+
+            {% endif %}
+
+ 
+
+            <form method="post" style="margin-top:16px;">
+
+              {% csrf_token %}
+
+              <input type="hidden" name="form_type" value="transaction"/>
+
+              <div class="form-grid">
+
+                <div>
+
+                  <label for="{{ transaction_form.description.id_for_label }}">Description</label>
+
+                  {{ transaction_form.description }}
+
+                  {% if transaction_form.description.errors %}
+
+                    <ul class="errorlist">{% for error in transaction_form.description.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+
+                  {% endif %}
+
+                </div>
+
+                <div>
+
+                  <label for="{{ transaction_form.amount.id_for_label }}">Amount</label>
+
+                  {{ transaction_form.amount }}
+
+                  {% if transaction_form.amount.errors %}
+
+                    <ul class="errorlist">{% for error in transaction_form.amount.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+
+                  {% endif %}
+
+                </div>
+
+                <div>
+
+                  <label for="{{ transaction_form.currency.id_for_label }}">Currency</label>
+
+                  {{ transaction_form.currency }}
+
+                  {% if transaction_form.currency.errors %}
+
+                    <ul class="errorlist">{% for error in transaction_form.currency.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+
+                  {% endif %}
+
+                </div>
+
+                <div>
+
+                  <label for="{{ transaction_form.kind.id_for_label }}">Direction</label>
+
+                  {{ transaction_form.kind }}
+
+                  {% if transaction_form.kind.errors %}
+
+                    <ul class="errorlist">{% for error in transaction_form.kind.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+
+                  {% endif %}
+
+                </div>
+
+                <div>
+
+                  <label for="{{ transaction_form.category.id_for_label }}">Category</label>
+
+                  {{ transaction_form.category }}
+
+                  {% if transaction_form.category.errors %}
+
+                    <ul class="errorlist">{% for error in transaction_form.category.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+
+                  {% endif %}
+
+                </div>
+
+                <div>
+
+                  <label for="{{ transaction_form.occurred_at.id_for_label }}">Date &amp; Time</label>
+
+                  {{ transaction_form.occurred_at }}
+
+                  {% if transaction_form.occurred_at.errors %}
+
+                    <ul class="errorlist">{% for error in transaction_form.occurred_at.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+
+                  {% endif %}
+
+                </div>
+
+              </div>
+
+              <button class="btn-primary" type="submit">Add Transaction</button>
+
+            </form>
+
+          </div>
+
+ 
+
+          <div class="card">
+
+            <h3> Goals</h3>
+
+            {% if goals %}
+
+              <table>
+
+                <thead>
+
+                  <tr><th>Goal</th><th>Progress</th><th>Due</th><th>Status</th></tr>
+
+                </thead>
+
+                <tbody>
+
+                  {% for goal in goals %}
+
+                    <tr>
+
+                      <td>{{ goal.name }}</td>
+
+                      <td>{{ goal.current_amount|floatformat:2 }} / {{ goal.target_amount|floatformat:2 }} ({{ goal.progress_percent|floatformat:0 }}%)</td>
+
+                      <td>{% if goal.due_date %}{{ goal.due_date|date:"M d, Y" }}{% else %}-{% endif %}</td>
+
+                      <td><span class="status {{ goal.status|slugify }}">{{ goal.get_status_display }}</span></td>
+
+                    </tr>
+
+                  {% endfor %}
+
+                </tbody>
+
+              </table>
+
+            {% else %}
+
+              <p style="color:#6b7280;font-size:14px;">Set your first goal to keep savings on track.</p>
+
+            {% endif %}
+
+ 
+
+            <form method="post" style="margin-top:16px;">
+
+              {% csrf_token %}
+
+              <input type="hidden" name="form_type" value="goal"/>
+
+              <div class="form-grid">
+
+                <div>
+
+                  <label for="{{ goal_form.name.id_for_label }}">Goal Name</label>
+
+                  {{ goal_form.name }}
+
+                  {% if goal_form.name.errors %}
+
+                    <ul class="errorlist">{% for error in goal_form.name.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+
+                  {% endif %}
+
+                </div>
+
+                <div>
+
+                  <label for="{{ goal_form.target_amount.id_for_label }}">Target</label>
+
+                  {{ goal_form.target_amount }}
+
+                  {% if goal_form.target_amount.errors %}
+
+                    <ul class="errorlist">{% for error in goal_form.target_amount.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+
+                  {% endif %}
+
+                </div>
+
+                <div>
+
+                  <label for="{{ goal_form.current_amount.id_for_label }}">Saved</label>
+
+                  {{ goal_form.current_amount }}
+
+                  {% if goal_form.current_amount.errors %}
+
+                    <ul class="errorlist">{% for error in goal_form.current_amount.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+
+                  {% endif %}
+
+                </div>
+
+                <div>
+
+                  <label for="{{ goal_form.due_date.id_for_label }}">Due Date</label>
+
+                  {{ goal_form.due_date }}
+
+                  {% if goal_form.due_date.errors %}
+
+                    <ul class="errorlist">{% for error in goal_form.due_date.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+
+                  {% endif %}
+
+                </div>
+
+                <div>
+
+                  <label for="{{ goal_form.status.id_for_label }}">Status</label>
+
+                  {{ goal_form.status }}
+
+                  {% if goal_form.status.errors %}
+
+                    <ul class="errorlist">{% for error in goal_form.status.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+
+                  {% endif %}
+
+                </div>
+
+              </div>
+
+              <button class="btn-primary" type="submit">Save Goal</button>
+
+            </form>
+
+          </div>
+
+        </div>
+
+ 
+
+        <div>
+
+          <div class="card">
+
+            <h3>Quick Stats</h3>
+
+            <p style="color:#6b7280;font-size:14px;margin-bottom:10px;">Keep tabs on the health of your finances.</p>
+
+            <div class="pill">Transactions logged: {{ recent_transactions|length }}</div>
+
+            <div class="pill">Goals set: {{ goals|length }}</div>
+
+            <div class="pill">Pads donated: {{ donation_total_packs }}</div>
+
+          </div>
+
+ 
+
+          <div class="card">
+
+            <h3>Learning Spotlight</h3>
+
+            <p style="color:#6b7280;font-size:14px;margin-bottom:12px;">Head over to the Financial Education hub for fresh tips on budgeting, business and safety.</p>
+
+            <button class="btn-primary" type="button" onclick="goTo('learning')">Explore Lessons</button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+ 
+
+  <script>
+
+    // URL mapping for navigation
+
+    const urlMap = {
+
+      dashboard: "{% url 'dashboard' %}",
+
+      profile: "{% url 'profile' %}",
+
+      learning: "{% url 'learning' %}",
+
+      promotions: "{% url 'promotions' %}",
+
+      donate: "{% url 'donate' %}",
+
+      budget: "{% url 'budget' %}",
+
+      {% if user.profile.is_admin %}
+
+      admin_dashboard: "{% url 'admin_dashboard' %}",
+
+      {% endif %}
+
+      logout: "{% url 'logout' %}",
+
+    };
+
+ 
+
+    function goTo(page) {
+
+      const url = urlMap[page];
+
+      if (url && url !== '#') {
+
+        window.location.href = url;
+
+      } else {
+
+        console.warn(`URL for "${page}" not found or not configured`);
+
+        if (page !== 'dashboard') {
+
+          window.location.href = urlMap.dashboard;
+
+        }
+
+      }
+
+    }
+
+ 
+
+    function openSendMoneyModal() {
+
+      const modal = document.getElementById('sendMoneyModal');
+
+      if (modal) modal.style.display = 'flex';
+
+    }
+
+ 
+
+    function closeSendMoneyModal() {
+
+      const modal = document.getElementById('sendMoneyModal');
+
+      if (modal) modal.style.display = 'none';
+
+      const form = document.getElementById('sendMoneyForm');
+
+      if (form) form.reset();
+
+      calculateFee();
+
+    }
+
+ 
+
+    function calculateFee() {
+
+      const amountInput = document.getElementById('amount');
+
+      const transferAmountSpan = document.getElementById('transferAmount');
+
+      const serviceFeeSpan = document.getElementById('serviceFee');
+
+      const totalAmountSpan = document.getElementById('totalAmount');
+
+      if (!amountInput) return;
+
+      const amount = parseFloat(amountInput.value) || 0;
+
+      const fee = amount * 0.02; // 2% fee
+
+      const total = amount + fee;
+
+      const currency = document.getElementById('currency') ? document.getElementById('currency').value : 'USD';
+
+      const symbols = {'USD': '$', 'EUR': '€', 'GBP': '£', 'KES': 'KSh', 'GHS': '₵', 'NGN': '₦'};
+
+      const symbol = symbols[currency] || '$';
+
+      if (transferAmountSpan) transferAmountSpan.textContent = `${symbol}${amount.toFixed(2)}`;
+
+      if (serviceFeeSpan) serviceFeeSpan.textContent = `${symbol}${fee.toFixed(2)}`;
+
+      if (totalAmountSpan) totalAmountSpan.textContent = `${symbol}${total.toFixed(2)}`;
+
+    }
+
+ 
+
+    // Close modal when clicking outside
+
+    (function(){
+
+      const overlay = document.getElementById('sendMoneyModal');
+
+      if (overlay) {
+
+        overlay.addEventListener('click', function(e) {
+
+          if (e.target === this) closeSendMoneyModal();
+
+        });
+
+      }
+
+    })();
+
+ 
+
+    // Initialize fee calculation and listeners
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+      calculateFee();
+
+      const amountEl = document.getElementById('amount');
+
+      const currencyEl = document.getElementById('currency');
+
+      if (amountEl) amountEl.addEventListener('input', calculateFee);
+
+      if (currencyEl) currencyEl.addEventListener('change', calculateFee);
+
+    });
+
+  </script>
+
+ 
+
+  {% include 'partials/chatbot.html' %}
+
+</body>
+
+</html>
+
+ 
+
+ 

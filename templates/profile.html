@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UniPay Profile</title>
+  
+  <!-- Inter font for consistency -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+      background: #F0F4F7;
+      min-height:100vh;
+      color:#24303b;
+    }
+    .container{display:flex;min-height:100vh}
+    
+    /* Sidebar - matching dashboard */
+    .sidebar{
+      width:260px;
+      background:#2B1D4C; /* dark indigo/purple */
+      box-shadow:4px 0 30px rgba(11,7,22,.25);
+      padding:30px 20px;
+      position:fixed;
+      height:100vh;
+      overflow-y:auto;
+    }
+    .logo{text-align:center;margin-bottom:40px}
+    .logo h1{
+      color:#E53935; /* vibrant red */
+      font-size:26px;font-weight:800;letter-spacing:0.2px;
+    }
+    .logo p{color:#DCE2E7;font-size:12px;margin-top:6px}
+
+    .nav-item{
+      padding:15px 20px;margin:10px 0;border-radius:15px;cursor:pointer;
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+      color:#DCE2E7;font-weight:600;display:flex;align-items:center;gap:12px;font-size:14px;
+    }
+    .nav-item:hover{
+      background:linear-gradient(90deg, rgba(229,57,53,.95), rgba(198,40,40,.95));
+      color:#fff;transform:translateX(6px);
+      box-shadow:0 8px 30px rgba(229,57,53,.12);
+    }
+    .nav-item.active{
+      background:linear-gradient(90deg,#E53935,#C62828);
+      color:#fff;box-shadow:0 8px 30px rgba(198,40,40,.12);
+    }
+
+    /* Main content */
+    .main-content{margin-left:260px;flex:1;padding:40px;background:transparent}
+    
+    /* Header */
+    .header{
+      background:#fff;padding:24px 32px;border-radius:20px;
+      box-shadow:0 8px 40px rgba(198,40,40,.05);margin-bottom:28px;
+      display:flex;justify-content:space-between;align-items:center;gap:24px;
+    }
+    .header h2{color:#2B1D4C;font-size:26px;font-weight:700;margin-bottom:6px}
+    .header p{color:#6b7280;font-size:14px}
+    
+    /* Badge */
+    .badge{
+      display:inline-block;
+      background:#E6EBF0;
+      color:#2B1D4C;
+      padding:8px 16px;
+      border-radius:999px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      font-weight:700;
+    }
+
+    /* Content grid */
+    .content-grid{display:grid;grid-template-columns:1.2fr 0.8fr;gap:24px;margin-top:18px}
+    @media(max-width:1100px){.content-grid{grid-template-columns:1fr}}
+    
+    /* Cards */
+    .card{
+      background:#fff;padding:22px;border-radius:16px;box-shadow:0 12px 40px rgba(11,7,22,.04);
+      border:1px solid rgba(230,235,240,.8);margin-bottom:18px;
+    }
+    .card h3{color:#E53935;margin-bottom:14px;font-size:18px;font-weight:700}
+
+    /* Profile list */
+    .profile-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px}
+    .profile-item{
+      background:#F7F9FB;
+      border:1px solid #E6EBF0;
+      border-radius:12px;
+      padding:16px;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .profile-item:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 25px rgba(11,7,22,.08);
+    }
+    .profile-item span{
+      display:block;
+      color:#6b7280;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-bottom:6px;
+      font-weight:600;
+    }
+    .profile-item strong{color:#2B1D4C;font-size:14px;font-weight:600}
+
+    /* Forms */
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+    label{
+      font-size:12px;
+      color:#6b7280;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-bottom:6px;
+      display:block;
+      font-weight:700;
+    }
+    .field{
+      width:100%;
+      border:2px solid #E6EBF0;
+      border-radius:12px;
+      padding:12px 14px;
+      font-size:14px;
+      background:#fff;
+      transition:.18s;
+    }
+    .field:focus{
+      outline:none;
+      border-color:#E53935;
+      box-shadow:0 0 0 6px rgba(229,57,53,.06);
+    }
+
+    /* Buttons */
+    .btn-primary{
+      background:linear-gradient(135deg,#E53935 0%,#C62828 100%);
+      color:#fff;border:none;padding:12px 22px;border-radius:25px;cursor:pointer;font-weight:800;font-size:14px;
+      box-shadow:0 10px 30px rgba(198,40,40,.12);transition:.18s;margin-top:10px;
+    }
+    .btn-primary:hover{
+      transform:translateY(-3px);
+      box-shadow:0 18px 50px rgba(198,40,40,.16);
+    }
+
+    /* Messages */
+    .flash{
+      background:#fff3f3;
+      border:1px solid rgba(229,57,53,.12);
+      color:#7a2a2a;
+      padding:10px 12px;
+      border-radius:12px;
+      margin-bottom:16px;
+      font-size:13px;
+    }
+    .errorlist{
+      list-style:none;
+      color:#c0392b;
+      font-size:12px;
+      margin-top:-4px;
+      margin-bottom:8px;
+    }
+
+    /* Responsive */
+    @media(max-width:600px){
+      .header{padding:18px}
+      .main-content{padding:20px}
+      .sidebar{width:220px}
+      .logo h1{font-size:20px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><h1>UniPay</h1><p>Empowering Global Money Transfers.</p></div>
+      <nav>
+        <div class="nav-item" onclick="goTo('dashboard')"><span>📊</span><span>Dashboard</span></div>
+        <div class="nav-item active" onclick="goTo('profile')"><span>👤</span><span>Profile</span></div>
+        <div class="nav-item" onclick="goTo('learning')"><span>📚</span><span>Financial Education</span></div>
+        <div class="nav-item" onclick="goTo('promotions')"><span>🎁</span><span>Promotions</span></div>
+        <div class="nav-item" onclick="goTo('donate')"><span>💝</span><span>Donations</span></div>
+        <div class="nav-item" onclick="goTo('budget')"><span>💰</span><span>Budget</span></div>
+        <div class="nav-item" onclick="goTo('logout')"><span>🚪</span><span>Logout</span></div>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      {% if messages %}
+        {% for message in messages %}<div class="flash">{{ message }}</div>{% endfor %}
+      {% endif %}
+      
+      <section class="header">
+        <div>
+          <h2>Profile &amp; Settings</h2>
+          <p>Update your personal information and tailor the experience to your goals.</p>
+        </div>
+        <span class="badge">{{ profile.membership_level }}</span>
+      </section>
+
+      <section class="content-grid">
+        <div>
+          <div class="card">
+            <h3>Your Details</h3>
+            <div class="profile-list">
+              <div class="profile-item"><span>Display Name</span><strong>{{ profile.display_name }}</strong></div>
+              <div class="profile-item"><span>Preferred Currency</span><strong>{{ profile.preferred_currency }}</strong></div>
+              <div class="profile-item"><span>Country</span><strong>{{ profile.country|default:'' }}</strong></div>
+              <div class="profile-item"><span>City</span><strong>{{ profile.city|default:'' }}</strong></div>
+              <div class="profile-item"><span>Address</span><strong>{{ profile.address|default:'' }}</strong></div>
+              <div class="profile-item"><span>Postal Code</span><strong>{{ profile.postal_code|default:'' }}</strong></div>
+              <div class="profile-item"><span>Phone</span><strong>{{ profile.phone_number|default:'' }}</strong></div>
+              <div class="profile-item"><span>Language</span><strong>{{ profile.language|default:'' }}</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <h3>Update Profile</h3>
+            <form method="post" novalidate>
+              {% csrf_token %}
+              <div class="form-grid">
+                {% for field in form %}
+                  <div>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<ul class="errorlist">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+              <button class="btn-primary" type="submit">Save Changes</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // URL mapping for navigation - matching dashboard
+    const urlMap = {
+      dashboard: "{% url 'dashboard' %}",
+      profile: "{% url 'profile' %}",
+      learning: "{% url 'learning' %}",
+      promotions: "{% url 'promotions' %}",
+      donate: "{% url 'donate' %}",
+      budget: "{% url 'budget' %}",
+      logout: "{% url 'logout' %}",
+    };
+
+    function goTo(page) {
+      const url = urlMap[page];
+      if (url && url !== '#') {
+        window.location.href = url;
+      } else {
+        console.warn(`URL for "${page}" not found or not configured`);
+        if (page !== 'dashboard') {
+          window.location.href = urlMap.dashboard;
+        }
+      }
+    }
+  </script>
+  
+  {% include 'partials/chatbot.html' %}
+</body>
+</html>

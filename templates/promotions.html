@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UniPay Promotions</title>
+  
+  <!-- Inter font for consistency -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+      background: #F0F4F7;
+      min-height:100vh;
+      color:#24303b;
+    }
+    .container{display:flex;min-height:100vh}
+    
+    /* Sidebar - matching dashboard */
+    .sidebar{
+      width:260px;
+      background:#2B1D4C; /* dark indigo/purple */
+      box-shadow:4px 0 30px rgba(11,7,22,.25);
+      padding:30px 20px;
+      position:fixed;
+      height:100vh;
+      overflow-y:auto;
+    }
+    .logo{text-align:center;margin-bottom:40px}
+    .logo h1{
+      color:#E53935; /* vibrant red */
+      font-size:26px;font-weight:800;letter-spacing:0.2px;
+    }
+    .logo p{color:#DCE2E7;font-size:12px;margin-top:6px}
+
+    .nav-item{
+      padding:15px 20px;margin:10px 0;border-radius:15px;cursor:pointer;
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+      color:#DCE2E7;font-weight:600;display:flex;align-items:center;gap:12px;font-size:14px;
+    }
+    .nav-item:hover{
+      background:linear-gradient(90deg, rgba(229,57,53,.95), rgba(198,40,40,.95));
+      color:#fff;transform:translateX(6px);
+      box-shadow:0 8px 30px rgba(229,57,53,.12);
+    }
+    .nav-item.active{
+      background:linear-gradient(90deg,#E53935,#C62828);
+      color:#fff;box-shadow:0 8px 30px rgba(198,40,40,.12);
+    }
+
+    /* Main content */
+    .main-content{margin-left:260px;flex:1;padding:40px;background:transparent}
+    
+    /* Header */
+    .header{
+      background:#fff;padding:24px 32px;border-radius:20px;
+      box-shadow:0 8px 40px rgba(198,40,40,.05);margin-bottom:28px;
+      display:flex;justify-content:space-between;align-items:center;gap:24px;
+    }
+    .header h2{color:#2B1D4C;font-size:26px;font-weight:700}
+    
+    /* Stack and Pills */
+    .stack{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{
+      border:2px solid #E6EBF0;
+      border-radius:999px;
+      padding:8px 16px;
+      font-size:12px;
+      background:#fff;
+      color:#2B1D4C;
+      font-weight:600;
+      transition:all .18s ease;
+    }
+    .pill:hover{
+      border-color:#E53935;
+      color:#E53935;
+      transform:translateY(-2px);
+    }
+
+    /* Grid and Cards */
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+    .card{
+      background:#fff;
+      padding:22px;
+      border-radius:16px;
+      box-shadow:0 12px 40px rgba(11,7,22,.04);
+      border:1px solid rgba(230,235,240,.8);
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      position:relative;
+      overflow:hidden;
+      min-height:200px;
+      transition:transform .18s ease, box-shadow .18s ease;
+    }
+    .card:hover{
+      transform:translateY(-4px);
+      box-shadow:0 20px 50px rgba(11,7,22,.08);
+    }
+    
+    /* Tag */
+    .tag{
+      position:absolute;
+      top:14px;
+      right:-30px;
+      background:linear-gradient(135deg,#E53935 0%,#C62828 100%);
+      color:#fff;
+      padding:8px 40px;
+      transform:rotate(25deg);
+      font-size:12px;
+      font-weight:700;
+      box-shadow:0 4px 15px rgba(198,40,40,.2);
+    }
+    
+    .card h3{color:#E53935;font-size:18px;font-weight:700}
+    .card p{color:#24303b;font-size:14px;line-height:1.5}
+    
+    /* Reward text */
+    .reward-text{
+      font-weight:600;
+      color:#2B1D4C;
+      background:#F7F9FB;
+      padding:8px 12px;
+      border-radius:8px;
+      border-left:4px solid #E53935;
+    }
+
+    /* Buttons */
+    .btn-primary{
+      background:linear-gradient(135deg,#E53935 0%,#C62828 100%);
+      color:#fff;
+      border:none;
+      padding:10px 20px;
+      border-radius:25px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:13px;
+      box-shadow:0 8px 25px rgba(198,40,40,.12);
+      transition:all .18s ease;
+      align-self:flex-start;
+      text-decoration:none;
+      display:inline-block;
+    }
+    .btn-primary:hover{
+      transform:translateY(-3px);
+      box-shadow:0 15px 40px rgba(198,40,40,.2);
+    }
+
+    /* Empty state */
+    .empty{
+      background:#fff;
+      padding:40px;
+      border-radius:16px;
+      box-shadow:0 12px 40px rgba(11,7,22,.04);
+      color:#6b7280;
+      text-align:center;
+      border:1px solid rgba(230,235,240,.8);
+    }
+
+    /* Small text */
+    small{
+      color:#6b7280;
+      font-size:12px;
+    }
+
+    /* Responsive */
+    @media(max-width:600px){
+      .header{padding:18px;flex-direction:column;align-items:flex-start;gap:16px}
+      .main-content{padding:20px}
+      .sidebar{width:220px}
+      .logo h1{font-size:20px}
+      .stack{gap:8px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><h1>UniPay</h1><p>Empowering Global Money Transfers.</p></div>
+      <nav>
+        <div class="nav-item" onclick="goTo('dashboard')"><span>📊</span><span>Dashboard</span></div>
+        <div class="nav-item" onclick="goTo('profile')"><span>👤</span><span>Profile</span></div>
+        <div class="nav-item" onclick="goTo('learning')"><span>📚</span><span>Financial Education</span></div>
+        <div class="nav-item active"><span>🎁</span><span>Promotions</span></div>
+        <div class="nav-item" onclick="goTo('donate')"><span>💝</span><span>Donations</span></div>
+        <div class="nav-item" onclick="goTo('budget')"><span>💰</span><span>Budget</span></div>
+        <div class="nav-item" onclick="goTo('logout')"><span>🚪</span><span>Logout</span></div>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <h2>Promotions & Rewards</h2>
+        <div class="stack">
+          <div class="pill">Referral Bonus</div>
+          <div class="pill">Fee Discounts</div>
+          <div class="pill">Loyalty Points</div>
+        </div>
+      </header>
+
+      {% if promotions %}
+        <section class="grid">
+          {% for promo in promotions %}
+            <article class="card">
+              {% if promo.badge_text %}<div class="tag">{{ promo.badge_text }}</div>{% endif %}
+              <h3>{{ promo.title }}</h3>
+              <p>{{ promo.description }}</p>
+              {% if promo.reward %}<p class="reward-text">{{ promo.reward }}</p>{% endif %}
+              {% if promo.cta_link %}
+                <a class="btn-primary" href="{{ promo.cta_link }}" target="_blank">{{ promo.cta_label }}</a>
+              {% else %}
+                <button class="btn-primary" type="button">{{ promo.cta_label }}</button>
+              {% endif %}
+              {% if promo.valid_until %}
+                <small>Valid until {{ promo.valid_until|date:"M d, Y" }}</small>
+              {% endif %}
+            </article>
+          {% endfor %}
+        </section>
+      {% else %}
+        <div class="empty">No active promotions right now. Check back soon for new rewards!</div>
+      {% endif %}
+    </main>
+  </div>
+
+  <script>
+    // URL mapping for navigation - matching dashboard
+    const urlMap = {
+      dashboard: "{% url 'dashboard' %}",
+      profile: "{% url 'profile' %}",
+      learning: "{% url 'learning' %}",
+      promotions: "{% url 'promotions' %}",
+      donate: "{% url 'donate' %}",
+      budget: "{% url 'budget' %}",
+      logout: "{% url 'logout' %}",
+    };
+
+    function goTo(page) {
+      const url = urlMap[page];
+      if (url && url !== '#') {
+        window.location.href = url;
+      } else {
+        console.warn(`URL for "${page}" not found or not configured`);
+        if (page !== 'dashboard') {
+          window.location.href = urlMap.dashboard;
+        }
+      }
+    }
+  </script>
+  
+  {% include 'partials/chatbot.html' %}
+</body>
+</html>

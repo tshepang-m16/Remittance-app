@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UniPay - Budget Planner</title>
+  
+  <!-- Inter font for consistency -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+      background: #F0F4F7;
+      min-height:100vh;
+      color:#24303b;
+    }
+    .container{display:flex;min-height:100vh}
+    
+    /* Sidebar - matching dashboard */
+    .sidebar{
+      width:260px;
+      background:#2B1D4C; /* dark indigo/purple */
+      box-shadow:4px 0 30px rgba(11,7,22,.25);
+      padding:30px 20px;
+      position:fixed;
+      height:100vh;
+      overflow-y:auto;
+    }
+    .logo{text-align:center;margin-bottom:40px}
+    .logo h1{
+      color:#E53935; /* vibrant red */
+      font-size:26px;font-weight:800;letter-spacing:0.2px;
+    }
+    .logo p{color:#DCE2E7;font-size:12px;margin-top:6px}
+
+    .nav-item{
+      padding:15px 20px;margin:10px 0;border-radius:15px;cursor:pointer;
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+      color:#DCE2E7;font-weight:600;display:flex;align-items:center;gap:12px;font-size:14px;
+    }
+    .nav-item:hover{
+      background:linear-gradient(90deg, rgba(229,57,53,.95), rgba(198,40,40,.95));
+      color:#fff;transform:translateX(6px);
+      box-shadow:0 8px 30px rgba(229,57,53,.12);
+    }
+    .nav-item.active{
+      background:linear-gradient(90deg,#E53935,#C62828);
+      color:#fff;box-shadow:0 8px 30px rgba(198,40,40,.12);
+    }
+
+    /* Main content */
+    .main-content{margin-left:260px;flex:1;padding:40px;background:transparent}
+    
+    /* Header */
+    .header{
+      background:#fff;padding:24px 32px;border-radius:20px;
+      box-shadow:0 8px 40px rgba(198,40,40,.05);margin-bottom:28px;
+      display:flex;justify-content:space-between;align-items:center;gap:24px;
+    }
+    .header h2{color:#2B1D4C;font-size:26px;font-weight:700}
+    
+    /* Summary Cards */
+    .summary{display:flex;gap:18px;flex-wrap:wrap}
+    .summary-card{
+      background:#fff;
+      padding:18px 22px;
+      border-radius:12px;
+      box-shadow:0 8px 30px rgba(11,7,22,.06);
+      border:1px solid rgba(230,235,240,.8);
+      min-width:160px;
+    }
+    .summary-card h3{font-size:12px;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+    .summary-card strong{font-size:20px;color:#E53935;font-weight:700}
+    .summary-card strong.negative{color:#c0392b}
+    .summary-card strong.positive{color:#27ae60}
+
+    /* Month Picker */
+    .month-picker{display:flex;align-items:center;gap:12px;margin-top:10px}
+    .month-picker label{
+      font-size:12px;
+      color:#6b7280;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      font-weight:700;
+    }
+    .month-picker input{
+      border:2px solid #E6EBF0;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:14px;
+      background:#fff;
+      transition:.18s;
+    }
+    .month-picker input:focus{
+      outline:none;
+      border-color:#E53935;
+      box-shadow:0 0 0 6px rgba(229,57,53,.06);
+    }
+
+    /* Grid and Cards */
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+    
+    .card{
+      background:#fff;
+      padding:22px;
+      border-radius:16px;
+      box-shadow:0 12px 40px rgba(11,7,22,.04);
+      border:1px solid rgba(230,235,240,.8);
+    }
+    .card h3{color:#E53935;margin-bottom:14px;font-size:18px;font-weight:700}
+
+    /* Forms */
+    label{
+      font-size:12px;
+      color:#6b7280;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-bottom:6px;
+      display:block;
+      font-weight:700;
+    }
+    .field{
+      width:100%;
+      border:2px solid #E6EBF0;
+      border-radius:12px;
+      padding:12px 14px;
+      font-size:14px;
+      background:#fff;
+      transition:.18s;
+      margin-bottom:12px;
+    }
+    .field:focus{
+      outline:none;
+      border-color:#E53935;
+      box-shadow:0 0 0 6px rgba(229,57,53,.06);
+    }
+
+    /* Buttons */
+    .btn-primary{
+      background:linear-gradient(135deg,#E53935 0%,#C62828 100%);
+      color:#fff;
+      border:none;
+      padding:12px 22px;
+      border-radius:25px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:14px;
+      box-shadow:0 10px 30px rgba(198,40,40,.12);
+      transition:all .18s ease;
+    }
+    .btn-primary:hover{
+      transform:translateY(-3px);
+      box-shadow:0 18px 50px rgba(198,40,40,.16);
+    }
+
+    /* Tables */
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{text-align:left;padding:12px 10px;font-size:13px}
+    th{
+      background:#E6EBF0;
+      color:#2B1D4C;
+      text-transform:uppercase;
+      font-size:12px;
+      letter-spacing:.05em;
+      border-bottom:1px solid rgba(11,7,22,.04)
+    }
+    tr:nth-child(even){background:#F7F9FB}
+    
+    /* Variance colors */
+    .variance-positive{color:#27ae60;font-weight:600}
+    .variance-negative{color:#c0392b;font-weight:600}
+
+    /* Messages and errors */
+    .flash{
+      background:#fff3f3;
+      border:1px solid rgba(229,57,53,.12);
+      color:#7a2a2a;
+      padding:10px 12px;
+      border-radius:12px;
+      margin-bottom:16px;
+      font-size:13px;
+    }
+    .message{
+      background:#fff3f3;
+      border:1px solid rgba(229,57,53,.12);
+      color:#7a2a2a;
+      padding:10px 12px;
+      border-radius:12px;
+      margin-bottom:14px;
+      font-size:13px;
+    }
+    .errorlist{
+      list-style:none;
+      color:#c0392b;
+      font-size:12px;
+      margin-top:-4px;
+      margin-bottom:10px;
+    }
+
+    /* Responsive */
+    @media(max-width:600px){
+      .header{padding:18px;flex-direction:column;align-items:flex-start;gap:16px}
+      .main-content{padding:20px}
+      .sidebar{width:220px}
+      .logo h1{font-size:20px}
+      .summary{gap:12px}
+      .summary-card{min-width:140px;padding:14px 18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><h1>UniPay</h1><p>Empowering Global Money Transfers.</p></div>
+      <nav>
+        <div class="nav-item" onclick="goTo('dashboard')"><span>📊</span><span>Dashboard</span></div>
+        <div class="nav-item" onclick="goTo('profile')"><span>👤</span><span>Profile</span></div>
+        <div class="nav-item" onclick="goTo('learning')"><span>📚</span><span>Financial Education</span></div>
+        <div class="nav-item" onclick="goTo('promotions')"><span>🎁</span><span>Promotions</span></div>
+        <div class="nav-item" onclick="goTo('donate')"><span>💝</span><span>Donations</span></div>
+        <div class="nav-item active"><span>💰</span><span>Budget</span></div>
+        <div class="nav-item" onclick="goTo('logout')"><span>🚪</span><span>Logout</span></div>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      {% if messages %}
+        {% for message in messages %}<div class="flash">{{ message }}</div>{% endfor %}
+      {% endif %}
+      <header class="header">
+        <div>
+          <h2>Budget Planner</h2>
+          <div class="month-picker">
+            <form method="get">
+              <label for="month">Select month</label>
+              <input id="month" type="month" name="month" value="{{ month|date:'Y-m' }}" onchange="this.form.submit()"/>
+            </form>
+          </div>
+        </div>
+        <div class="summary">
+          <div class="summary-card">
+            <h3>Planned</h3>
+            <strong>{{ planned_total|floatformat:2 }}</strong>
+          </div>
+          <div class="summary-card">
+            <h3>Actual</h3>
+            <strong>{{ actual_total|floatformat:2 }}</strong>
+          </div>
+          <div class="summary-card">
+            <h3>Variance</h3>
+            <strong class="{% if variance_total < 0 %}negative{% else %}positive{% endif %}">
+              {{ variance_total|floatformat:2 }}
+            </strong>
+          </div>
+        </div>
+      </header>
+
+      <section class="grid">
+        <div class="card">
+          <h3>Add / Update Category</h3>
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="budget"/>
+            {% if form.non_field_errors %}
+              <div class="message">
+                {% for error in form.non_field_errors %}
+                  {{ error }}{% if not forloop.last %}<br>{% endif %}
+                {% endfor %}
+              </div>
+            {% endif %}
+            <label for="{{ form.category.id_for_label }}">Category</label>
+            {{ form.category }}
+            {% if form.category.errors %}
+              <ul class="errorlist">{% for error in form.category.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+            <label for="{{ form.planned_amount.id_for_label }}">Planned Amount</label>
+            {{ form.planned_amount }}
+            {% if form.planned_amount.errors %}
+              <ul class="errorlist">{% for error in form.planned_amount.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+            <label for="{{ form.actual_amount.id_for_label }}">Actual Spend</label>
+            {{ form.actual_amount }}
+            {% if form.actual_amount.errors %}
+              <ul class="errorlist">{% for error in form.actual_amount.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+            <label for="{{ form.month.id_for_label }}">Month</label>
+            {{ form.month }}
+            {% if form.month.errors %}
+              <ul class="errorlist">{% for error in form.month.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+            <button class="btn-primary" type="submit">Save Entry</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Current Plan</h3>
+          {% if entries %}
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Planned</th>
+                  <th>Actual</th>
+                  <th>Variance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for entry in entries %}
+                  {% with variance=entry.variance %}
+                  <tr>
+                    <td>{{ entry.category }}</td>
+                    <td>{{ entry.planned_amount|floatformat:2 }}</td>
+                    <td>{{ entry.actual_amount|floatformat:2 }}</td>
+                    <td class="{% if variance < 0 %}variance-negative{% else %}variance-positive{% endif %}">
+                      {{ variance|floatformat:2 }}
+                    </td>
+                  </tr>
+                  {% endwith %}
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p style="color:#6b7280;font-size:14px;">
+              No budget entries for this month yet. Use the form to get started.
+            </p>
+          {% endif %}
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // URL mapping for navigation - matching dashboard
+    const urlMap = {
+      dashboard: "{% url 'dashboard' %}",
+      profile: "{% url 'profile' %}",
+      learning: "{% url 'learning' %}",
+      promotions: "{% url 'promotions' %}",
+      donate: "{% url 'donate' %}",
+      budget: "{% url 'budget' %}",
+      logout: "{% url 'logout' %}",
+    };
+
+    function goTo(page) {
+      const url = urlMap[page];
+      if (url && url !== '#') {
+        window.location.href = url;
+      } else {
+        console.warn(`URL for "${page}" not found or not configured`);
+        if (page !== 'dashboard') {
+          window.location.href = urlMap.dashboard;
+        }
+      }
+    }
+  </script>
+  
+  {% include 'partials/chatbot.html' %}
+</body>
+</html>
